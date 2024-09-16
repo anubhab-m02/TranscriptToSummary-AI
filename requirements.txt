@@ -1,0 +1,5 @@
+streamlit
+google-generativeai
+textblob
+markdown2
+fpdf
