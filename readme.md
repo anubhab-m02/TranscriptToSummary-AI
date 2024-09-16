@@ -17,8 +17,8 @@ The TranscriptToSummary-AI is a Streamlit application that allows users to summa
 ## Installation
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
-   cd <repository-directory>
+   git clone https://github.com/anubhab-m02/TranscriptToSummary-AI
+   cd TranscriptToSummary-AI
    ```
 
 2. Install the required packages:
