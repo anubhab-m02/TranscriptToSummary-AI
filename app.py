@@ -1,5 +1,8 @@
 import streamlit as st
 import google.generativeai as genai
+from langdetect import detect
+from textblob import TextBlob
+import os
 
 # Function to initialize or get the API key
 def get_api_key():
@@ -18,11 +21,18 @@ def extract_transcript(url):
     transcript = st.text_area("Paste the lecture transcript here:", height=300)
     return transcript if transcript else None
 
-def generate_summary(transcript):
+def upload_transcript():
+    uploaded_file = st.file_uploader("Upload a transcript file (.txt, .srt):", type=["txt", "srt"])
+    if uploaded_file is not None:
+        content = uploaded_file.read().decode("utf-8")
+        return content
+    return None
+
+def generate_summary(transcript, length="short", key_takeaways=3):
     try:
         model = genai.GenerativeModel('gemini-1.5-flash')
         response = model.generate_content(
-            f"Please summarize the following lecture transcript and provide key takeaways:\n\n{transcript}"
+            f"Please summarize the following lecture transcript in a {length} format and provide {key_takeaways} key takeaways:\n\n{transcript}"
         )
         
         # Check if the response has content
@@ -46,20 +56,20 @@ def main():
     url = st.text_input("Enter Udemy lecture URL (for reference only):")
     
     transcript = extract_transcript(url)
+    if not transcript:
+        transcript = upload_transcript()
+    
+    summary_length = st.selectbox("Select summary length:", ["short", "medium", "long"])
+    key_takeaways = st.slider("Number of key takeaways:", 1, 10, 3)
     
     if st.button("Generate Summary") and transcript:
         with st.spinner("Generating summary..."):
-            summary = generate_summary(transcript)
+            summary = generate_summary(transcript, length=summary_length, key_takeaways=key_takeaways)
         
         if summary:
             st.subheader("Summary and Key Takeaways")
             st.write(summary)
             
-            # Optional: Save summary to file
-            if st.button("Save Summary"):
-                with open("summary.txt", "w") as f:
-                    f.write(summary)
-                st.success("Summary saved to summary.txt")
     elif not transcript:
         st.warning("Please enter the transcript to generate a summary.")
 
